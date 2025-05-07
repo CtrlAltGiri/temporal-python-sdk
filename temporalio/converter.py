@@ -259,6 +259,10 @@ class CompositePayloadConverter(PayloadConverter):
             RuntimeError: No known converter
         """
         payloads = []
+        with temporalio.workflow.unsafe.sandbox_unrestricted():
+            from datetime import datetime
+            print("TO_PAYLOADS", datetime.now())
+
         for index, value in enumerate(values):
             # We intentionally attempt these serially just in case a stateful
             # converter may rely on the previous values

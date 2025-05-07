@@ -352,6 +352,10 @@ class _WorkflowInstanceImpl(
     def activate(
         self, act: temporalio.bridge.proto.workflow_activation.WorkflowActivation
     ) -> temporalio.bridge.proto.workflow_completion.WorkflowActivationCompletion:
+        with temporalio.workflow.unsafe.sandbox_unrestricted():
+            from datetime import datetime
+            print("ACTIVATION", current_time=datetime.now())
+
         # Reset current completion, time, and whether replaying
         self._current_completion = (
             temporalio.bridge.proto.workflow_completion.WorkflowActivationCompletion()
@@ -890,6 +894,10 @@ class _WorkflowInstanceImpl(
         # another function which applies exception handling.
         async def run_workflow(input: ExecuteWorkflowInput) -> None:
             try:
+                with temporalio.workflow.unsafe.sandbox_unrestricted():
+                    from datetime import datetime
+                    print("INBOUND_EXECUTE_WORKFLOW", current_time=datetime.now())
+
                 result = await self._inbound.execute_workflow(input)
                 result_payloads = self._payload_converter.to_payloads([result])
                 if len(result_payloads) != 1:

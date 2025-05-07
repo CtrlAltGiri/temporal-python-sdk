@@ -116,7 +116,7 @@ class _WorkflowWorker:
         # If there's a debug mode or a truthy TEMPORAL_DEBUG env var, disable
         # deadlock detection, otherwise set to 2 seconds
         self._deadlock_timeout_seconds = (
-            None if debug_mode or os.environ.get("TEMPORAL_DEBUG") else 2
+            None if debug_mode or os.environ.get("TEMPORAL_DEBUG") else 50
         )
 
         # Keep track of workflows that could not be evicted
@@ -277,6 +277,10 @@ class _WorkflowWorker:
             # Run activation in separate thread so we can check if it's
             # deadlocked
             if workflow:
+                with temporalio.workflow.unsafe.sandbox_unrestricted():
+                    from datetime import datetime
+                    print("RUN_IN_EXECUTOR", current_time=datetime.now())
+
                 activate_task = asyncio.get_running_loop().run_in_executor(
                     self._workflow_task_executor,
                     workflow.activate,
